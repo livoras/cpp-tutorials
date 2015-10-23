@@ -132,7 +132,7 @@ a {
   background-color: #f3f6fa;
   border: solid 1px #dce6f0;
   border-radius: 0.3rem; }
-  .main-content pre > code {
+/*  .main-content pre > code {
     padding: 0;
     margin: 0;
     font-size: 0.9rem;
@@ -141,6 +141,7 @@ a {
     white-space: pre;
     background: transparent;
     border: 0; }
+*/
 .main-content .highlight {
   margin-bottom: 1rem; }
   .main-content .highlight pre {
@@ -243,3 +244,8 @@ a {
 @media screen and (max-width: 42em) {
   .site-footer {
     font-size: 0.9rem; } }
+
+a.project-name {
+  color: #fff;
+  text-decoration: none;
+}

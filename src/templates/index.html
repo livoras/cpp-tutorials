@@ -7,7 +7,7 @@
     <ul>
     {% for section in chapter.sections -%}
       <li>
-        <a href="/chapters/{{chapter.chapter}}/{{section.replace(".md", ".html")}}">
+        <a href="chapters/{{chapter.chapter}}/{{section.replace(".md", ".html")}}">
           {% if chapter.chapterIndex === -1 %}
             {{section.replace(".md", "")}}
           {% else %}
