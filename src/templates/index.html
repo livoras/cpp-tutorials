@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="chapter">
+  {% for chapter in allPosts -%}
+    <h3> {{chapter.chapterName}} </h3>
+    <ul>
+    {% for section in chapter.sections -%}
+      <li>
+        <a href="/chapters/{{chapter.chapter}}/{{section.replace(".md", ".html")}}">
+          {% if chapter.chapterIndex === -1 %}
+            {{section.replace(".md", "")}}
+          {% else %}
+            {{chapter.chapterIndex}}.{{section.replace(".md", "")}}
+          {%- endif %}
+        </a>
+      </li>
+    {%- endfor %}
+    </ul>
+  {%- endfor %}
+</div>
+{% endblock %}

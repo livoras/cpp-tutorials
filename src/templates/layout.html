@@ -11,71 +11,13 @@
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name">C++简明教程</h1>
-      <h2 class="project-tagline">简单易懂的C++教程</h2>
+      <h1 class="project-name">{{title}}</h1>
+      <h2 class="project-tagline">{{description}}</h2>
     </section>
 
     <section class="main-content">
 
-      
-<div class="chapter">
-  <h3> 第0章 前言 </h3>
-    <ul>
-    <li>
-        <a href="/chapters/0 前言/1 关于本教程.html">
-          
-            0.1 关于本教程
-          
-        </a>
-      </li>
-    <li>
-        <a href="/chapters/0 前言/2 如何开始？.html">
-          
-            0.2 如何开始？
-          
-        </a>
-      </li>
-    
-    </ul>
-  <h3> 第1章 开始学习 </h3>
-    <ul>
-    <li>
-        <a href="/chapters/1 开始学习/1 C++评论.html">
-          
-            1.1 C++评论
-          
-        </a>
-      </li>
-    <li>
-        <a href="/chapters/1 开始学习/2 黑化.html">
-          
-            1.2 黑化
-          
-        </a>
-      </li>
-    
-    </ul>
-  <h3> 附录 </h3>
-    <ul>
-    <li>
-        <a href="/chapters/附录/1 关于本教程.html">
-          
-            1 关于本教程
-          
-        </a>
-      </li>
-    <li>
-        <a href="/chapters/附录/2 如何开始？.html">
-          
-            2 如何开始？
-          
-        </a>
-      </li>
-    
-    </ul>
-  
-</div>
-
+      {% block content %}{% endblock %}
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/livoras/cpp-tutorials">Cpp-tutorials</a> is maintained by <a href="https://github.com/livoras">livoras</a>.</span>
