@@ -1,0 +1,19 @@
+{
+  "name": "cpp-tutorials",
+  "version": "1.0.0",
+  "description": "cpp-tutorials",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/livoras/cpp-tutorials.git"
+  },
+  "author": "Livoras",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/livoras/cpp-tutorials/issues"
+  },
+  "homepage": "https://github.com/livoras/cpp-tutorials"
+}
