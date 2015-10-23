@@ -1,2 +1,2 @@
 # cpp-tutorials
-A Simpel C++ Tutorials
+A Simple C++ Tutorials
