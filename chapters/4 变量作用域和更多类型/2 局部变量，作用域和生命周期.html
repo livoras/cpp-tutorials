@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    
+      <title>C++简明教程 | 4.2 局部变量，作用域和生命周期</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/normalize.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" href="/stylesheets/syntaxs/github-gist.css">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name"><a href="/" class="project-name">C++简明教程</a></h1>
+      <h2 class="project-tagline">简单易懂的C++教程</h2>
+    </section>
+
+    <section class="main-content">
+
+      
+<div class="markdown">
+  <h2>4.2 局部变量，作用域和生命周期</h2>
+  <p><em>原文链接：<a href="http://www.learncpp.com/cpp-tutorial/4-1a-local-variables-and-local-scope/">http://www.learncpp.com/cpp-tutorial/4-1a-local-variables-and-local-scope/</a></em></p>
+<p>当我们讨论变量的时候，理清变量的作用域和生命周期的概念是很有帮助的。一个变量的作用域决定了这个变量在什么范围内可以被访问到。一个变量的生命周期是指变量从被创建到销毁的过程。两个概念通常会被一起提及。</p>
+<p>在块里面被定义的称作局部变量。局部变量有着自动的生命周期，指的就是当程序进入它们所在的块的时候，它们就会被创建；当程序离开它们所在的块的时候，它们就会被销毁。局部变量有着块级的作用域（也称作局部作用域），指的就是它们只能在它们被定义的块内被访问到。</p>
+<p>看看下面这个简单程序：</p>
+<pre><code>int main()
+{ // 进入main的块，i和d都会被创建
+
+    int i(5); // i在这里被初始化
+    double d(4.0); // d在这里被初始化
+
+    return 0;
+
+} // i和d在这里被销毁
+</code></pre><p>因为i和d都在main函数的块内被定义，它们都会在main结束执行的时候被销毁。</p>
+<p>变量在嵌套的块内被定义的时候，嵌套的块结束的时候，变量就会被销毁。</p>
+<pre><code>int main() // 外层块，n在这里被创建
+{
+    int n(5); // n在这里初始化
+
+    { // 嵌套的块开始，d在这里被创建
+        double d(4.0); // d在这里被初始化
+    } // d在这里被销毁
+
+    // 不能在这里使用d变量，因为它已经被销毁了
+
+    return 0;
+} // n在这里被销毁
+</code></pre><p>变量在一个块内被定义的时候，只能在该块内可见。因为每个函数都有自己的块，所以一个函数内的变量不会在另外的函数内可见。</p>
+<pre><code>void someFunction()
+{
+    int value(4); // value在这里被定义
+
+    // value在这里都可见和可以使用
+
+} // value在这里被销毁
+
+int main()
+{
+    // value在这里不可见不可使用
+
+    someFunction();
+
+    // value在这个函数都不可见不可使用
+
+    return 0;
+}
+</code></pre><p>这就意味着不通的函数可以有同名的变量名或参数。这是一件好事，因为这样我们就不需要担心不相关的函数之间会有命名冲突的问题。在接下来的例子当中，函数都有x和y变量。一个函数的x和y对其他函数的x和y的存在是无知的。</p>
+<pre><code>#include &lt;iostream&gt;
+
+// add函数的x只能在add函数内可见和使用
+int add(int x, int y) // add函数的x在这里被创建
+{
+    return x + y;
+} // add函数的x在这里被销毁
+
+// main函数的x只能在main函数内可见和使用
+int main() // main函数的x在这里被创建
+{
+    int x = 5;
+    int y = 6;
+    std::cout &lt;&lt; add(x, y) &lt;&lt; std::endl; // main函数的x的值会被复制到add函数的x当中
+    return 0;
+} // main函数的x在这里被销毁
+</code></pre><p>嵌套的块可以看作是它们所被定义的外层块的一部分。所以结果就是，在外层块被定义的变量可以在嵌套的块内可见。</p>
+<pre><code>int main()
+{ // 外层块的开始
+
+    int x(5);
+
+    { // 内层块开始
+        int y(7);
+        // 在这x和y都可以见
+        std::cout &lt;&lt; x &lt;&lt; &quot; + &quot; &lt;&lt; y &lt;&lt; &quot; = &quot; &lt;&lt; x + y;
+    } // y在这里被销毁
+
+    // 不能在这里使用y了，因为它已经被销毁
+
+    return 0;
+} // x在这里被销毁
+</code></pre><p>注意在嵌套块内的变量可以和外层变量有相同的名字。这种情况下，嵌套块的变量会“隐藏”掉外层的变量。可以叫这种情况作命名隐藏或者命名遮挡（This is called name hiding or shadowing.）。</p>
+<pre><code>#include &lt;iostream&gt;
+
+int main()
+{ // 外层块
+    int apples(5);
+
+    if (apples &gt;= 5)
+    { // 嵌套块
+        int apples(10); // 隐藏了外层的apples的变量，使用了新的apples变量
+
+        // apples指的是嵌套块所定义的apples
+        // 外层的apples变量被隐藏了
+
+        std::cout &lt;&lt; apples;
+    } // 嵌套块结束，块内的apples变量被销毁
+
+    // apples现在指的是外层的apples
+    std::cout &lt;&lt; apples;
+
+    return 0;
+} // 外层块的apples变量被销毁
+</code></pre><p>如果你运行程序，它会输出：</p>
+<pre><code>10
+5
+</code></pre><p>应该尽量避免这种嵌套块变量和外层变量同名的情况，因为这样会让程序变得难以理解。</p>
+<p>变量应该它们所使用范围内尽量小的作用域内被定义。例如，如果一个变量只在嵌套层被使用，那么它应该定义在嵌套的层内：</p>
+<pre><code>#include &lt;iostream&gt;
+
+int main()
+{
+    // 不要在这里定义y
+    {
+        // y只在这个块内被使用，只在这个块内定义y
+        int y(5);
+        cout &lt;&lt; y;
+    }
+    // 否则y在这里也可以被访问到
+
+    return 0;
+}
+</code></pre><p>限制变量的作用域，可以降低程序的复杂性。因为活跃的变量的数目被降低了。而且，这样可以更清楚地看到变量是在哪个范围内被使用的。一个变量只能在它被定义的块内被访问到（或者块内的嵌套的子块）。这样可以让程序更加容易理解。</p>
+<p>规范: 在变量被使用的尽量小的作用域内定义变量。
+规范: 避免嵌套块的变量和外层块的变量重名。</p>
+<h3 id="-">函数参数</h3>
+<p>尽管函数参数不是在函数块内被定义的，但是在绝大多数情况下，它们也具有块级作用域。</p>
+<pre><code>int max(int x, int y) // x和y在这里被定义
+{
+    // 把x和y之间较大者的值赋给max变量
+    int max = (x &gt; y) ? x : y; // max在这里被定义
+    return max;
+} // x, y, 和max都在这里被销毁
+</code></pre><p>函数级别的异常（exceptions）是特例，我们会在将来的章节提及。</p>
+<h3 id="-">总结</h3>
+<p>在块内被定义的变量称为局部变量。这些变量只能在它们被定义的块（包括该块的子块内）内使用，一旦块结束了，它们就会被销毁。</p>
+<p>在变量被使用的尽量小的作用域内定义变量。如果变量只在嵌套的块内使用，就在那个块内定义变量。</p>
+<h3 id="-">小测验</h3>
+<p>1) 写一个程序让用户输入两个整数，第二个数字要比第一个数字要大。如果用户输入的数字第二个比较小，那么就使用一个块和一个临时变量交换两个数字。然后输出哪个数字比较大，哪个数字比较小。给你的程序加上注释，表明每个变量在什么时候被销毁的。</p>
+<p>输出结果应该如下：</p>
+<pre><code>Enter an integer: 4
+Enter a larger integer: 2
+Swapping the values
+The smaller value is 2
+The larger value is 4
+</code></pre><p>2) 变量的作用域（scope）和生命周期（duration）的区别是什么？在默认情况下，局部变量会有怎么样的作用域和生命周期？</p>
+
+</div>
+<hr>
+<ul>
+  
+  <li>上一篇：<a href="/chapters/4 变量作用域和更多类型/1 块（复合语句）.html">4.1 块（复合语句）</a></li>
+  
+  <li><a href="/">索引</a></li>
+  
+  <li>下一篇：<a href="/chapters/6 数组，字符串，指针，和引用/1 数组（第一部分）.html">6.1 数组（第一部分）</a></li>
+  
+</ul>
+
+
+      
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = '//cpp-learning.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/livoras/cpp-tutorials">Cpp-tutorials</a> is maintained by <a href="https://github.com/livoras">livoras</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+    </section>
+    
+<script src="/lib/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?789108fb49809d3e8675b25363944e88";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+  </body>
+</html>
