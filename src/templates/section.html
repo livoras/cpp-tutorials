@@ -5,6 +5,16 @@
   <h2>{{sectionTitle}}</h2>
   {{content | safe}}
 </div>
+<hr>
+<ul>
+  {% if prev %}
+  <li>上一篇：<a href="{{prev.path}}">{{prev.title}}</a></li>
+  {% endif %}
+  <li><a href="/">索引</a></li>
+  {% if next %}
+  <li>下一篇：<a href="{{next.path}}">{{next.title}}</a></li>
+  {% endif %}
+</ul>
 {% endblock %}
 
 {% block disqus %}
