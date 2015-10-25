@@ -35,7 +35,7 @@
 
 } // i和d在这里被销毁
 </code></pre><p>因为i和d都在main函数的块内被定义，它们都会在main结束执行的时候被销毁。</p>
-<p>变量在嵌套的块内被定义的时候，嵌套的块结束的时候，变量就会被销毁。</p>
+<p>如果变量在嵌套的块内被定义，那么嵌套的块结束的时候，变量就会被销毁。</p>
 <pre><code>int main() // 外层块，n在这里被创建
 {
     int n(5); // n在这里初始化
@@ -67,7 +67,7 @@ int main()
 
     return 0;
 }
-</code></pre><p>这就意味着不通的函数可以有同名的变量名或参数。这是一件好事，因为这样我们就不需要担心不相关的函数之间会有命名冲突的问题。在接下来的例子当中，函数都有x和y变量。一个函数的x和y对其他函数的x和y的存在是无知的。</p>
+</code></pre><p>这就意味着不同的函数可以有同名的变量名或参数。这是一件好事，因为这样我们就不需要担心不相关的函数之间会有命名冲突的问题。在接下来的例子当中，函数都有x和y变量。一个函数的x和y对其他函数的x和y的存在是无知的。</p>
 <pre><code>#include &lt;iostream&gt;
 
 // add函数的x只能在add函数内可见和使用
@@ -100,7 +100,7 @@ int main() // main函数的x在这里被创建
 
     return 0;
 } // x在这里被销毁
-</code></pre><p>注意在嵌套块内的变量可以和外层变量有相同的名字。这种情况下，嵌套块的变量会“隐藏”掉外层的变量。可以叫这种情况作命名隐藏或者命名遮挡（This is called name hiding or shadowing.）。</p>
+</code></pre><p>注意在嵌套块内的变量可以和外层变量有相同的名字。这种情况下，嵌套块的变量会“屏蔽”掉外层的变量。可以叫这种情况作命名屏蔽或者命名遮挡（This is called name hiding or shadowing.）。</p>
 <pre><code>#include &lt;iostream&gt;
 
 int main()
@@ -109,10 +109,10 @@ int main()
 
     if (apples &gt;= 5)
     { // 嵌套块
-        int apples(10); // 隐藏了外层的apples的变量，使用了新的apples变量
+        int apples(10); // 屏蔽了外层的apples的变量，使用了新的apples变量
 
         // apples指的是嵌套块所定义的apples
-        // 外层的apples变量被隐藏了
+        // 外层的apples变量被屏蔽了
 
         std::cout &lt;&lt; apples;
     } // 嵌套块结束，块内的apples变量被销毁
@@ -174,7 +174,7 @@ The larger value is 4
   
   <li><a href="/">索引</a></li>
   
-  <li>下一篇：<a href="/chapters/6 数组，字符串，指针，和引用/1 数组（第一部分）.html">6.1 数组（第一部分）</a></li>
+  <li>下一篇：<a href="/chapters/4 变量作用域和更多类型/3 全局变量和连接（Global variables and linkage）.html">4.3 全局变量和连接（Global variables and linkage）</a></li>
   
 </ul>
 
