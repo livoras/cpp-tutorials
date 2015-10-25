@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    
+      <title>C++简明教程 | 4.4  为什么说全局变量是魔鬼</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/normalize.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" href="/stylesheets/syntaxs/github-gist.css">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name"><a href="/" class="project-name">C++简明教程</a></h1>
+      <h2 class="project-tagline">简单易懂的C++教程</h2>
+    </section>
+
+    <section class="main-content">
+
+      
+<div class="markdown">
+  <h2>4.4  为什么说全局变量是魔鬼</h2>
+  <p><em>原文链接：<a href="http://www.learncpp.com/cpp-tutorial/4-2a-why-global-variables-are-evil/">http://www.learncpp.com/cpp-tutorial/4-2a-why-global-variables-are-evil/</a></em></p>
+<p>如果你问一个编程老手关于编程的经验，他们通常会略加思考以后跟你说：“不要用全局变量！”。并且会跟你说一些原因：全局变量是编程语言里面最容易被滥用的概念。即使它们在用于教学的小程序中看起来好像无害的样子，但是通常在大的应用程序里面造成很大麻烦。</p>
+<p>新手通常倾向于使用很多全局变量，因为它们可以让程序更容易就运行起来，特别是在有很多函数的情况下（通常把参数传来传去很麻烦，所以全局变量就减少了这种痛苦）。但是，使用全局变量真的是一个坏主意！</p>
+<p>很多开发者深知认为，应该完全禁止全局变量的使用。</p>
+<p>在我们深入探讨其中的原因之前，先澄清一些东西。当开发者告诉你全局变量是魔鬼的时候，他们并不是说不要用任何全局的东西。他们通常说不带<code>const</code>变量，而全局的常量还是可以用的。</p>
+<h3 id="-">为什么（不是常量）的全局变量是魔鬼</h3>
+<p>让全局变量变得危险的最大的一个原因就是，任何函数都可以修改全局变量，而且程序员没有什么便捷的方法知道发什么了什么事情。看看下面这个例子：</p>
+<pre><code>// 声明全局变量
+int g_mode;
+
+void doSomething()
+{
+    g_mode = 2; // 把全局变量设置为2
+}
+
+int main()
+{
+    g_mode = 1; // 注意：这里把全局变量变成了1，这不是一个局部变量
+
+    doSomething();
+
+    // 程序员以为g_model是1
+    // 但其实`doSomething`函数把它变成了2
+
+    if (g_mode == 1)
+        cout &lt;&lt; &quot;No threat detected.&quot; &lt;&lt; endl; // &quot;没有任何威胁&quot;
+    else
+        cout &lt;&lt; &quot;Launching nuclear missiles...&quot; &lt;&lt; endl; // &quot;启动原子导弹...&quot;
+
+    return 0;
+}
+</code></pre><p>注意程序员把<code>g_mode</code>设置成了1，然后调用了<code>doSomething</code>函数。除非程序员清晰地知道<code>doSomething</code>函数会改变g_mode的值，否则TA并不会料到<code>doSomething</code>函数会改变<code>g_mode</code>的值。结果就是，<code>main</code>函数的运行结果不是想程序员所预想的那样的（然后原子弹炸了全世界）。</p>
+<p>全局变量使得每个函数调用都带来了潜在的危险，而且程序员没办法知道哪个函数是有危险的哪个是没有危险的。局部变量会安全得多，因为一个函数的变量不会被其它函数所修改。</p>
+<p>还有很多原因让我们避免使用全局变量。</p>
+<p>使用全局变量的时候，经常会遇到这样的代码：</p>
+<pre><code>void foo()
+{
+    // useful code
+
+    if (g_mode == 4) // do something good
+}
+</code></pre><p>当<code>g_mode</code>被设置成了3，而不是4，你怎么fix它？你需要找出所有可能会把<code>g_mode</code>设置成3的地方，并且需要追踪到它第一次被设置的地方。那些地方可能和<code>foo</code>函数一点关系都没有！</p>
+<p>我们建议尽可能把局部变量声明在离它第一次被使用最近的地方，其中一个原因就是为了减少你需要往前翻阅来查看它到底是干嘛的代码数量。全局变量可能是在我们所建议的另外一个极端——因为他们可能会在任何地方被使用，你必须要翻阅相当庞大的代码来明白它到底是干嘛的。</p>
+<p>在上面的例子当中，你可能发现<code>g_mode</code>被引用了422次。除非有着很好的文档来解释<code>g_mode</code>的作用，否则你可能需要查看所有使用<code>g_mode</code>的地方来搞清楚它在不同的情况下的用法，它的有效值是什么，还有它整体功能是什么。</p>
+<p>全局变量也降低了程序的模块化程度和灵活性。一个除了它的参数以外没有用任何东西并且没有副作用的函数，被看做是完美地被模块化。模块化帮助我们更好的理解程序，以及带来程序的可复用性。而全局变量极大的降低了程序的模块化程度。</p>
+<p>尤其避免在“抉择点”上使用全局变量（例如，在条件判断语句里面使用全局变量，就像上面的例子那样）。全局变量所携带的重要信息变更了（例如用户名），可能不会导致程序崩溃，但是很有可能会让程序的运作不正常。</p>
+<h3 id="-">所以应该在什么情况下才能使用全局变量</h3>
+<p>很少。在绝大多数情况下都可以避免使用全局变量。在一些特殊情况下，谨慎地使用全局变量可以真正地降低程序的复杂性，在这些罕有的情况下，使用全局变量是被允许的。</p>
+<p>例如，如果你的程序使用数据库来进行数据的读写，定义一个全局的数据库会变得有必要，因为在程序当中它几乎到处都需要用到。类似的，如果你的程序需要log来输出出错信息（或者是调试信息），你可能需要把它定义成全局的，因为你可能只需要一个log，而且到处都要使用它。声音的控制库是一个很好的例子：你大不必把它往一个个函数里面传，因为你只需要一个声音库来管理你所有的声音，所以最好把它弄成全局的，在程序启动的时候进行初始化，然后把它当成只读的来用。</p>
+<h3 id="-">从全局的破坏中存活</h3>
+<p>如果你确实发现使用全局变量可以极大地降低程序的复杂性，遵循下面的建议可以把你的麻烦降到最低：　</p>
+<p>第一，把你的所有全局变量加上<code>g_</code>前缀，并且/或者把它们否放到一个命名空间里面，这样可以避免命名冲突。并且可以知道这个变量是个全局变量。</p>
+<p>例如，不要这样做：</p>
+<pre><code>double gravity (9.8); // unclear if this is a local or global variable from the name
+
+int main()
+{
+    return 0;
+}
+</code></pre><p>要这样做：</p>
+<pre><code>double g_gravity (9.8); // now clear this is a global variable from the name
+
+int main()
+{
+    return 0;
+}
+</code></pre><p>第二，避免直接对全局变量的访问，更好的做法是把它“封装”起来。首先，把变量变成静态变量（static），那么它就只能在它定义的文件里面被直接访问到。然后提供一个“访问函数”来给外部访问这个函数。这些函数可以确保一些对变量的操作是在控制范围中的（例如输入验证、范围检查等等）。而且，如果想要改变底层的实现（例如，把一个数据库移动到另外一个地方），你只能改变访问函数的实现，而不是每一个全局使用这些变量的代码片段。</p>
+<p>例如，不要这样做：</p>
+<pre><code>double g_gravity (9.8); // 可以被任何文件访问
+</code></pre><p>要这样做：</p>
+<pre><code>static double g_gravity (9.8); // 只限制在这个文件内访问
+double getGravity() // 这个函数可以被任何文件访问
+{
+    // 我们可以在这里添加一些逻辑代码
+    return g_gravity;
+} 
+</code></pre><p>第三，当写一个比较独立的函数需要使用到全局变量的时候，不要直接在函数体内使用全局变量。通过参数传入，然后使用那个参数。这样，如果在需要函数处理不同值的情况下，只需要修改传入的参数即可。这样就提高了模块化程度。</p>
+<p>不要这样做：</p>
+<pre><code>// 通过时间计算瞬时速度
+double instantVelocity(int time)
+{
+    return g_gravity * time;
+}
+</code></pre><p>要这样做：</p>
+<pre><code>// 这个函数可以处理任何重力情况下的瞬时速度
+// 如果想用全局的重力来计算，你只需要把gegGravity的返回结果传入即可
+double instantVelocity(int time, double gravity)
+{
+    return gravity * time;
+}
+</code></pre><p>最后，改变全局变量的值最有可能触发问题。组织好你的代码来做好全局变量会被改变的准备。尽可能减少修改全局变量的代码——最好把全局变量当成只读的来用。如果你的在程序启动的时候设置了变量的值然后就没有对它进行修改，你就相当于把意外发生的机会最小化了。</p>
+<h3 id="-">开个玩笑</h3>
+<p>对于全局变量最好的命名前缀是什么？</p>
+<p>答案：//</p>
+<p>呵呵，C++的笑话总是很冷。</p>
+<h3 id="-">总结</h3>
+<p>如果可能，尽量避免使用全局变量！如果你一定要使用它们，小心翼翼地用。</p>
+<p>全局常量（符号常量）随便用，只要你有恰当的命名习惯。</p>
+
+</div>
+<hr>
+<ul>
+  
+  <li>上一篇：<a href="/chapters/4 变量作用域和更多类型/3 全局变量和链接（Global variables and linkage）.html">4.3 全局变量和链接（Global variables and linkage）</a></li>
+  
+  <li><a href="/">索引</a></li>
+  
+  <li>下一篇：<a href="/chapters/6 数组，字符串，指针，和引用/1 数组（第一部分）.html">6.1 数组（第一部分）</a></li>
+  
+</ul>
+
+
+      
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = '//cpp-learning.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/livoras/cpp-tutorials">Cpp-tutorials</a> is maintained by <a href="https://github.com/livoras">livoras</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+    </section>
+    
+<script src="/lib/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?789108fb49809d3e8675b25363944e88";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+  </body>
+</html>
