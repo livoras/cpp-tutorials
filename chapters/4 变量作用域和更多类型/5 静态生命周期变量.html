@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    
+      <title>C++简明教程 | 4.5 静态生命周期变量</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/normalize.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" href="/stylesheets/syntaxs/github-gist.css">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name"><a href="/" class="project-name">C++简明教程</a></h1>
+      <h2 class="project-tagline">简单易懂的C++教程</h2>
+    </section>
+
+    <section class="main-content">
+
+      
+<div class="markdown">
+  <h2>4.5 静态生命周期变量</h2>
+  <p><em>原文链接：<a href="http://www.learncpp.com/cpp-tutorial/43-static-duration-variables/">http://www.learncpp.com/cpp-tutorial/43-static-duration-variables/</a></em></p>
+<p><code>static</code>这个关键字可能是最让人迷惑的关键字了（也许除了<code>class</code>以外）。这是因为在不同的情况下它有着不同的意思。</p>
+<p>在关于全局变量的章节中，你已经了解了当<code>static</code>关键字修饰一个在任何块以外声明的变量的时候，它就定义了一个拥有内部链接的全局变量，意味着这个变量只能在它所定义的文件里面被使用。</p>
+<p><code>static</code>关键字也可以修饰在块里面定义的变量，但是它和之前的作用完全不一样。在关于局部变量的章节里面，你了解了局部变量是具有自动的生命周期的，意味着它们在块进入块执行的时候被创建，在退出块执行的时候被销毁。</p>
+<p>使用<code>static</code>关键字修饰局部变量使得它们从自动的生命周期转化为静态的生命周期（也称为固定生命周期）。一个静态生命周期的变量（也称静态变量）即使在它作用域结束以后依然存在！静态周期变量只会被创建（初始化）一次，然后它们就会存在直到整个应用程序结束。</p>
+<p>最简单去理解自动和静态生命周期区别的方法就是看例子。</p>
+<p>自动的生命周期（默认）：</p>
+<pre><code>#include &lt;iostream&gt;
+
+void incrementAndPrint()
+{
+    using namespace std;
+    int value = 1; // automatic duration by default
+    ++value;
+    cout &lt;&lt; value &lt;&lt; endl;
+} // value is destroyed here
+
+int main()
+{
+    incrementAndPrint();
+    incrementAndPrint();
+    incrementAndPrint();
+}
+</code></pre><p>每一次调用<code>incrementAndPrint</code>，一个<code>value</code>变量就会被创建并且赋值为1。<code>incrementAndPrint</code>把它加1，然后输出它的值。当<code>incrementAndPrint</code>结束执行的时候，变量就会被销毁。结果就是，程序输出了：</p>
+<pre><code>2
+2
+2
+</code></pre><p>现在看看这个程序的静态版本。代码上唯一的区别就是把局部变量<code>value</code>加上<code>static</code>关键字，把它变成静态生命周期。</p>
+<p>静态生命周期（使用<code>static</code>关键字）：</p>
+<pre><code>#include &lt;iostream&gt;
+
+void incrementAndPrint()
+{
+    using namespace std;
+    static int s_value = 1; // 静态生命周期，这一句只会执行一次
+    ++s_value;
+    cout &lt;&lt; s_value &lt;&lt; endl;
+} // s_value不会被销毁，但是从这里以后也不可以被访问到了
+
+int main()
+{
+    incrementAndPrint();
+    incrementAndPrint();
+    incrementAndPrint();
+}
+</code></pre><p>在这个程序当中，因为<code>s_value</code>被声明为<code>static</code>，<code>s_value</code>只会被创建和初始化一次（赋为1）。当它的作用域结束以后，它不会被销毁。每次都函数<code>incrementAndPrint</code>被调用的时候，用的就是之前留下来的<code>s_value</code>的值，不管它是什么。最后程序输出：</p>
+<pre><code>2
+3
+4
+</code></pre><p>就像要给全局变量加上<code>g_</code>前缀一样，通常给静态变量加上<code>s_</code>前缀。如果是内部链接的全局变量（这种变量也是需要<code>static</code>关键字修饰的），那么也是加上<code>g_</code>前缀，不需要<code>s_</code>。</p>
+<p>静态周期的局部变量最常用的场景之一就是唯一标识的生成器。当程序需要维护一大堆类似的对象的时候，给它们每个都加上一个用于识别它们的唯一的ID会很有用。用静态生命周期的局部变量就很方便可以做到：</p>
+<pre><code>int generateID()
+{
+    static int s_itemID = 0;
+    return s_itemID++;
+}
+</code></pre><p>第一次函数调用的时候，它返回0。第二次返回1。每次它被调用的时候，它返回的数字总是会比上次执行的数字大1。你就可以用这些返回的数字来对你的对象进行标识。因为<code>s_itemID</code>是局部变量，它不可能被其它函数“捣鼓”。</p>
+<p>静态变量提供了一些类似全局变量的便利（在程序结束之前它们都不会被销毁），但是它们只限制在它们的作用域内被使用。这样就让它们比全局变量更加安全。</p>
+<p>小测验：</p>
+<p>1) <code>static</code>关键字用在全局变量和局部变量上有什么不同？</p>
+
+</div>
+<hr>
+<ul>
+  
+  <li>上一篇：<a href="/chapters/4 变量作用域和更多类型/4  为什么说全局变量是魔鬼.html">4.4  为什么说全局变量是魔鬼</a></li>
+  
+  <li><a href="/">索引</a></li>
+  
+  <li>下一篇：<a href="/chapters/6 数组，字符串，指针，和引用/1 数组（第一部分）.html">6.1 数组（第一部分）</a></li>
+  
+</ul>
+
+
+      
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = '//cpp-learning.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/livoras/cpp-tutorials">Cpp-tutorials</a> is maintained by <a href="https://github.com/livoras">livoras</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+    </section>
+    
+<script src="/lib/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?789108fb49809d3e8675b25363944e88";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+  </body>
+</html>
