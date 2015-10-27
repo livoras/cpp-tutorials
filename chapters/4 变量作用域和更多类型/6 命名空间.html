@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    
+      <title>C++简明教程 | 4.6 命名空间</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/normalize.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" href="/stylesheets/syntaxs/github-gist.css">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name"><a href="/" class="project-name">C++简明教程</a></h1>
+      <h2 class="project-tagline">简单易懂的C++教程</h2>
+    </section>
+
+    <section class="main-content">
+
+      
+<div class="markdown">
+  <h2>4.6 命名空间</h2>
+  <p><em>原文链接：<a href="http://www.learncpp.com/cpp-tutorial/4-3a-namespaces/">http://www.learncpp.com/cpp-tutorial/4-3a-namespaces/</a></em></p>
+<p>本文基于第一章所提及的关于命名空间的内容。</p>
+<p>假设你是一个教室的老师。假设有两个学生的名字都叫“Alex”。你可能会说，“Alex测验成绩是A”，那么这时候你指的到底是哪个Alex？没人知道，除非你通过没有歧义的方式来指明你说的到底是哪个Alex。你可能用手指指出，或者说的时候带上他的姓氏。如果这两个Alex是在不同的教室的，那么不会有这样的问题了——其实真正的问题就在于在同一个地方出现了两个同名的物体。并且，事实上，随着同一个教室的人数的增长，出现两个学生同名的概率会几何级数地增长。</p>
+<p>同样地问题会出现在编程当中——两个同名的标识符（变量或者函数的名字）出现在同一个作用域里面。当这种情况发生的时候，命名冲突就出现了，并且编译器会报错，因为没有足够的信息让编译器去区分它们。当程序变得越来越大的时候，标识符的数目线性增长，但是命名冲突的可能性指数级增长。</p>
+<p>我们来看看一个命名冲突的例子。在下面的例子当中，foo.h和goo.h是包含着同名、同参数函数的头文件，但是它们各自指向的并不是同一个函数。</p>
+<p>foo.h</p>
+<pre><code>// 做加法
+int doSomething(int x, int y)
+{
+    return x + y;
+}
+</code></pre><p>goo.h</p>
+<pre><code>// 做减法
+int doSomething(int x, int y)
+{
+    return x - y;
+}
+</code></pre><p>main.cpp</p>
+<pre><code>#include &quot;foo.h&quot;
+#include &quot;goo.h&quot;
+#include &lt;iostream&gt;
+
+int main()
+{
+    using namespace std;
+    cout &lt;&lt; doSomething(4, 3); // which doSomething will we get?
+    return 0;
+}
+</code></pre><p>如果foo.h和goo.h是分别单独编译的，编译不会有问题。但是如果把它们include到同一个程序当中，我们就会在同一个作用域（全局作用域）里面引入两个同名的函数，这样就导致了命名冲突。编译器最终会报错：</p>
+<pre><code>c:\VCProjects\goo.h(4) : error C2084: function &#39;int __cdecl doSomething(int,int)&#39; already has a body
+</code></pre><p>为了解决这个问题，我们引入了命名空间的概念。</p>
+<h3 id="-">什么是命名空间？</h3>
+<p>一个命名空间定义了一个区域，在这个区域内的代码的标识符都是唯一的。默认情况下，全局变量和普通的函数都定义在全局的命名空间下。看看下面这个例子：</p>
+<pre><code>int g_x = 5;
+
+int foo(int x)
+{
+    return -x;
+}
+</code></pre><p><code>g_x</code>和<code>foo()</code>都定义在全局的命名空间内。</p>
+<p>在上面有命名冲突的例子当中，当<code>main()</code>include<code>foo.h</code>和<code>goo.h</code>的时候，编译器会尝试去把两个版本的<code>doSomething</code>放到全局的命名空间内，这就是为什么会有命名冲突的缘故。</p>
+<p>为了避免两段无关的代码一起使用的时候会产生命名冲突，C++允许我们通过<code>namespace</code>关键字声明我们自己的命名空间。所有在用户自己定义的命名空间所声明的变量都属于该命名空间，而不属于全局的命名空间。</p>
+<p>我们可以通过命名空重写刚才有命名冲突的例子：</p>
+<p>foo.h:</p>
+<pre><code>namespace Foo
+{
+    // This doSomething() belongs to namespace Foo
+    int doSomething(int x, int y)
+    {
+        return x + y;
+    }
+}
+</code></pre><p>goo.h:</p>
+<pre><code>namespace Goo
+{
+    // This doSomething() belongs to namespace Goo
+    int doSomething(int x, int y)
+    {
+        return x - y;
+    }
+}
+</code></pre><p>现在<code>fooh.</code>的<code>doSomething()</code>在<code>Foo</code>命名空间内，<code>goo.h</code>的<code>doSomething</code>在Goo命名空间内。我们重新编译一下看看：</p>
+<pre><code>int main()
+{
+    using namespace std;
+    cout &lt;&lt; doSomething(4, 3) &lt;&lt; endl; // which doSomething will we get?
+    return 0;
+}
+</code></pre><p>编译器报了另外一个错误：</p>
+<pre><code>C:\VCProjects\Test.cpp(15) : error C2065: &#39;doSomething&#39; : undeclared identifier
+</code></pre><p>当我们调用<code>doSomething()</code>函数的时候到底发生了什么事情？编译器在全局命名空间里面查找<code>doSomething()</code>的定义，但是，因为<code>doSomething()</code>函数已经不在全局命名空间里面了，所以根本找不到这个函数的定义。</p>
+<p>有两种方式去告诉编译器你需要调用哪个版本的<code>doSomething</code>函数。</p>
+<h3 id="-">使用作用域限定操作符（::）访问命名空间</h3>
+<p>第一种方式是使用作用域限定操作符（::）。你可以给变量加上特定的前缀告诉编译器你需要哪个命名空间内的变量。</p>
+<p>这里有一个样例，告诉编译器我们需要用<code>Foo</code>命名空间里面的<code>doSomething</code>函数：</p>
+<pre><code>int main(void)
+{
+    using namespace std;
+    cout &lt;&lt; Foo::doSomething(4, 3) &lt;&lt; endl;
+    return 0;
+}
+</code></pre><p>产生的结果就是：</p>
+<pre><code>7
+</code></pre><p>如果我们想要<code>Goo</code>空间里面的<code>doSomething</code>函数：</p>
+<pre><code>int main(void)
+{
+    using namespace std;
+    cout &lt;&lt; Goo::doSomething(4, 3) &lt;&lt; endl;
+    return 0;
+}
+</code></pre><p>产生的结果：</p>
+<pre><code>1
+</code></pre><p>命名空间操作符相当好用，因为它允许我们在特定的命名空间里面查找我们想要的变量。它甚至允许我们这样做：</p>
+<pre><code>int main(void)
+{
+    using namespace std;
+    cout &lt;&lt; Foo::doSomething(4, 3) &lt;&lt; endl;
+    cout &lt;&lt; Goo::doSomething(4, 3) &lt;&lt; endl;
+    return 0;
+}
+</code></pre><p>结果就是：</p>
+<pre><code>7
+1
+</code></pre><p>也可以不带任何命名空间地使用作用域限定操作符（::）。这种情况下，它指向的是全局的命名空间。</p>
+<h3 id="-using-"><code>using</code>关键字</h3>
+<p>第二种方式告诉编译器你需要哪个命名空间的标志符是使用<code>using</code>关键字。</p>
+<p><code>using</code>指令告诉编译器，如果它找不到某个标识符，就在特定的命名空间里面进行查找：</p>
+<pre><code>int main(void)
+{
+    using namespace std;
+    using namespace Foo; // 查找Foo命名空间
+    cout &lt;&lt; doSomething(4, 3) &lt;&lt; endl; // calls Foo::doSomething()
+    return 0;
+}
+</code></pre><p><code>using namescape Foo</code>这一样让<code>doSomething(4, 3)</code>解析成了<code>Foo::doSomething(4, 3)</code>。结果就是，程序输出：</p>
+<pre><code>7
+</code></pre><p>这样也有可能导致命名冲突：</p>
+<pre><code>int main(void)
+{
+    using namespace std;
+    using namespace Foo; // look in namespace Foo
+    using namespace Goo; // look in namespace Goo
+    cout &lt;&lt; doSomething(4, 3) &lt;&lt; endl;
+    return 0;
+}
+</code></pre><p>正如你所料到的那样，编译器编译出错：</p>
+<pre><code>C:\VCProjects\Test.cpp(15) : error C2668: &#39;doSomething&#39; : ambiguous call to overloaded function
+</code></pre><p>在这种情况下，它在全局命名空间里面找不到<code>doSomething()</code>，所以它在<code>Foo</code>和<code>Goo</code>命名空间（还有std）命名空间里面查找。因为<code>doSomething()</code>找到了两个，所以编译器不知道用哪个。</p>
+<p>我们可以不用<code>using</code>指令，而是用一个<code>using</code>声明：</p>
+<pre><code>int main(void)
+{
+    using namespace std;
+    using Foo::doSomething; // 告诉编译器`doSomething`代表着`Foo::doSomething`
+    cout &lt;&lt; doSomething(4, 3) &lt;&lt; endl; // 解析成`Foo:doSomething(4, 3)`
+    return 0;
+}
+</code></pre><p><code>using</code>有着和变量一样的作用域规则——如果它在块内声明，那就有着块级作用域（只在块内生效）。如果它在块以外声明，那么它就有着全局作用域，并且从它声明以后对整个文件都起作用。</p>
+<p>谨慎地使用<code>using</code>关键字可以让你的代码更加整洁和易读。即使<code>using</code>关键字可以在函数以外使用，从而可以影响整个文件，但是这种做法是不提倡的，以为它提高了不同命名空间（还有和全局作用域）之间标志符冲突的可能性，这就违法了命名空间这个概念的初衷。</p>
+<p>注意，如果在头文件里面使用<code>using</code>关键字，会导致每个include这个头文件的代码文件的全局作用域都被影响了。这是绝对需要避免的。</p>
+<p>规范：不要在全局作用域使用<code>using</code>关键字，包括头文件。</p>
+<h3 id="-">允许命名空间块同名</h3>
+<p>在不同地方声明同名的命名空间是可以的（即使在同一文件里面你也可以声明多次，如果有好的理由你也可以这样做）。所有的同名的命名空间声明都被认为是同一个命名空间的一部分。</p>
+<p>add.h:</p>
+<pre><code>namespace BasicMath
+{
+    // function add() is part of namespace BasicMath
+    int add(int x, int y)
+    {
+        return x + y;
+    }
+}
+</code></pre><p>subtract.h:</p>
+<pre><code>namespace BasicMath
+{
+    // function subtract() is also part of namespace BasicMath
+    int subtract(int x, int y)
+    {
+        return x - y;
+    }
+}
+</code></pre><p>main.cpp:</p>
+<pre><code>#include &quot;add.h&quot; // import BasicMath::add()
+#include &quot;subtract.h&quot; // import BasicMath::subtract()
+
+int main(void)
+{
+    cout &lt;&lt; BasicMath::add(4, 3) &lt;&lt; endl;
+    cout &lt;&lt; BasicMath::subtract(4, 3) &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre><p>它正如你所想象的那样运作。</p>
+<h3 id="-using-">取消或者替代<code>using</code>关键字</h3>
+<p>一旦<code>using</code>关键字在特定的作用域中声明了，就没有办法用其它<code>using</code>关键字取消或者替代它。</p>
+<pre><code>int main()
+{
+    using namespace Foo;
+
+    // 这里Foo已经生效了，就没有办法撤销了！
+
+
+    return 0;
+} // Foo效果到这里才结束
+</code></pre><p>你最好利用块级作用域的规则，特意地把<code>using</code>关键字限定在特定的作用域内：</p>
+<pre><code>int main()
+{
+    {
+        using namespace Foo;
+        // 这里可以用Foo的命名空间内的东西
+    } // Foo在这里失效
+
+    {
+        using namespace Goo;
+        // 这里可以用Goo的命名空间内的东西
+    } // Goo在这里失效
+
+    return 0;
+}
+</code></pre><p>当然，所有这些令人头疼的麻烦你都可以直接用作用域限定符来解决（::）。</p>
+
+</div>
+<hr>
+<ul>
+  
+  <li>上一篇：<a href="/chapters/4 变量作用域和更多类型/5 静态生命周期变量.html">4.5 静态生命周期变量</a></li>
+  
+  <li><a href="/">索引</a></li>
+  
+  <li>下一篇：<a href="/chapters/6 数组，字符串，指针，和引用/1 数组（第一部分）.html">6.1 数组（第一部分）</a></li>
+  
+</ul>
+
+
+      
+<div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = '//cpp-learning.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/livoras/cpp-tutorials">Cpp-tutorials</a> is maintained by <a href="https://github.com/livoras">livoras</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+    </section>
+    
+<script src="/lib/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?789108fb49809d3e8675b25363944e88";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+  </body>
+</html>
