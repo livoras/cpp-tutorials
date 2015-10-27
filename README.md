@@ -1,9 +1,9 @@
 C++简明教程
 =========================================
 
-简单易懂的C++教程。全部翻译自[LearnCpp.com](http://www.learncpp.com/)。
+简单易懂的C++教程。全部翻译自 [LearnCpp.com](http://www.learncpp.com/)。
 
-本项目网站：http://www.cpp-learning.com，此项目为网站源码以及翻译内容。
+本项目网站：http://www.cpp-learning.com ，此项目为网站源码以及翻译内容。
 
 ### 运行该网站
 
