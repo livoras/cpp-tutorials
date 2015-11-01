@@ -22,7 +22,7 @@
 <div class="markdown">
   <h2>4.7 隐式类型转换</h2>
   <p><em>原文链接：<a href="http://www.learncpp.com/cpp-tutorial/44-implicit-type-conversion-coercion/">http://www.learncpp.com/cpp-tutorial/44-implicit-type-conversion-coercion/</a></em></p>
-<p>你之前也了解到了，一个变量的值其实是通过一系列的bit来存储的，一个变量的数据类型告诉编译器怎么把这一系列的bit翻译成有意义的值。所以，不同的数据类型可能用不同的形式代表着“相同”的值——例如，整数3盒浮点数3.0有着完全不同的二进制表现形式。</p>
+<p>你之前也了解到了，一个变量的值其实是通过一系列的bit来存储的，一个变量的数据类型告诉编译器怎么把这一系列的bit翻译成有意义的值。所以，不同的数据类型可能用不同的形式代表着“相同”的值——例如，整数3和浮点数3.0有着完全不同的二进制表现形式。</p>
 <p>那么当我们这样做的时候发生了什么事情：</p>
 <pre><code>float f = 3; // 把整数值赋给浮点数类型
 </code></pre><p>在这样的情况下，编译器不能直接表示整数值3的bit直接存放到浮点数f中。它需要把整数3转换成浮点数，才能赋值给变量f。</p>
@@ -50,6 +50,116 @@ doSomething(3); // 把整数3传入函数，这个函数接受长整型参数
 <p>隐形类型转换（也称<strong>自动类型转换</strong>或者<strong>强制转换</strong>），通常在需要一种基本数据类型的时候，应用了另外一种基本数据类型的值，但是开发者没有明确地（通过转换操作符）告诉编译器如何进行这种转换。</p>
 <p>所有上面的这些例子都是隐式类型转换。</p>
 <p>有两种不同的隐式类型转换：升级（promotions）和转化（conversions）。</p>
+<h3 id="-">数字升级</h3>
+<p>当一个数值转换成更大的相似的数据类型，就叫做<strong>数字升级</strong>（或者说扩展，这个术语通常保留给整数用的）。例如，一个<code>int</code>类型可以扩展成<code>long</code>型，一个<code>float</code>可以升级成<code>double</code>。</p>
+<pre><code>long l(64); // 把64整数扩展成long型
+double d(0.12f); // 把0.12这个单精度浮点型升级成了双精度浮点数
+</code></pre><p><strong>数字升级</strong>涵盖了<strong>升级</strong>的所有的类型，但C++中还有两个特定含义的术语：</p>
+<ul>
+<li><strong>整数型升级</strong> 指的是把比<code>int</code>小的整数（包括<code>bool</code>、<code>char</code>、<code>unsigned char</code>、<code>signed char</code>、<code>usigned short</code>、<code>signed short</code>）转化成<code>int</code>型或<code>unsigne int</code>。</li>
+<li><strong>浮点型升级</strong> 指的是把<code>float</code>转化成<code>double</code>。</li>
+</ul>
+<p>整数型升级和浮点型升级在需要把更小的数据类型转换成<code>int</code>/<code>unsigned</code>或者<code>double</code>的情况下用到，因为这些数据类型通常执行操作的时候最高效。</p>
+<p>关于升级需要记住的的是：这种类型转换是最安全的，不会导致数据丢失。</p>
+<h3 id="-">数字转化</h3>
+<p>当我们一个把较大的数字类型变成较小的数据类型的时候，或者在完全不同类型之间进行数据的转换。我们都把这种转换称为数字转化（numeric conversion）。例如：</p>
+<pre><code>double d = 3; // 把整数型3变成双精度浮点型
+short s = 2; // 把整数2变成短整型
+</code></pre><p>和数字升级不一样，数字转化有可能产生数据损失。因为如此，所有这类型的隐式类型转换都会使得编译器编译的时候给出警告。</p>
+<p>转化的规则是很复杂，而且种类繁多。我们只讨论常见的几种。</p>
+<p>在<strong>所有</strong>的情况下，都应该尽量避免这种情形：把一个值转化成另外一种类型，而这种类型的数据格式却没有足够的长度来存储这个值。例如：</p>
+<pre><code>int main()
+{
+    int i = 30000;
+    char c = i;
+
+    std::cout &lt;&lt; static_cast&lt;int&gt;(c);
+
+    return 0;
+}
+</code></pre><p>在这个例子当中，我们把一个大的整数赋值给一个<code>char</code>类型（只有-128~127的长度）。这就会导致<code>char</code>溢出，输出的结果为：</p>
+<pre><code>48
+</code></pre><p>但是，把较大的整数或者浮点数转化成较小的类型的时候，只要值的长度没有超过该类型的长度，那么转换是无数据损失的。例如：</p>
+<pre><code>int i = 2;
+short s = i; // 整型转换成短整型
+std::cout &lt;&lt; s;
+
+double d = 0.1234;
+float f = d;
+std::cout &lt;&lt; f;
+</code></pre><p>输出的结果为：</p>
+<pre><code>2
+0.1234
+</code></pre><p>在一些浮点数的情况下，较小类型的精度较低，可能会导致一些数据的舍入操作。例如：</p>
+<pre><code>float f = 0.123456789; // 双精度浮点数0.123456789有9位小数，但是浮点数只有7位的精度
+std::cout &lt;&lt; std::setprecision(9) &lt;&lt; f;
+</code></pre><p>在这种情况下，我们看到因为<code>float</code>没有<code>double</code>这样长的小数精度，转换的时候就会产生精度的丢失：</p>
+<pre><code>0.123456791
+</code></pre><p>把一个整数转换成浮点数和把整数转换成长整型一样是正常工作的：</p>
+<pre><code>int i = 10;
+float f = i;
+std::cout &lt;&lt; f;
+</code></pre><p>输出结果：</p>
+<pre><code>10
+</code></pre><p>只要长度没有超出，把浮点数转换成整型数据也是没问题的，但是小数位都会丢失，例如：</p>
+<pre><code>int i = 3.5;
+std::cout &lt;&lt; i;
+</code></pre><p>这个例子当中，小数位（.5）丢失了，只剩下了：</p>
+<pre><code>3
+</code></pre><h3 id="-">计算算术表达式</h3>
+<p>当计算一个表达式的时候，编译器会把每个表达式分解成单独的子表达式。算数表达式要求操作数的类型是相同的。如果一个算术表达式的类型不相同，那么编译器就会执行隐式类型转换，把其中一个操作数的类型变成另外一个操作数的类型，这个过程通常叫做算术转换。会执行以下的原则：</p>
+<ul>
+<li>如果一个操作数是一个整数，那么就执行<strong>整数型升级</strong>（正如上面的描述）。</li>
+<li>如果操作数还是类型不一致，那么编译器就把优先级较低的类型的操作数转换成优先级较高的类型。</li>
+</ul>
+<p>操作数的类型的优先级如下：</p>
+<ul>
+<li>long double (最高)</li>
+<li>double</li>
+<li>float</li>
+<li>unsigned long long</li>
+<li>long long</li>
+<li>unsigned long</li>
+<li>long</li>
+<li>unsigned int</li>
+<li>int (最低)</li>
+</ul>
+<p>我们可以通过<code>typeid</code>操作符来查看算术转换的过程。</p>
+<p>下面的例子当中，我们用了两个短整型：</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;typeinfo&gt; // typeid()包含在这个头部
+
+int main()
+{
+    short a(4);
+    short b(5);
+    std::cout &lt;&lt; typeid(a + b).name() &lt;&lt; &quot; &quot; &lt;&lt; a + b &lt;&lt; std::endl; // 显示a + b的类型转换结果
+
+    return 0;
+}
+</code></pre><p>因为短整型是整数，所以在相加之前，它们会执行<strong>整数型升级</strong>。结果就是两个整型数据进行相加，输出结果：</p>
+<pre><code>int 9
+</code></pre><p>我们来看看另外的例子：</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;typeinfo&gt; // for typeid()
+
+int main()
+{
+    double d(4.0);
+    short s(2);
+    std::cout &lt;&lt; typeid(d + s).name() &lt;&lt; &quot; &quot; &lt;&lt; d + s &lt;&lt; std::endl; // show us the type of d + s
+
+    return 0;
+}
+</code></pre><p>这个情况下，短整型会执行<strong>整数型升级</strong>转换成整型（int）。然而，<code>int</code>和<code>double</code>不是很搭。又因为<code>double</code>有着较高的优先级，所以整数<code>2</code>转化成双精度浮点数<code>2.0</code>，然后两个双精度浮点数相加得出结果。</p>
+<pre><code>double 6.0
+</code></pre><p>这种等级转化会导致一些有意思的现象。例如，看看下面的例子：</p>
+<pre><code>std::cout &lt;&lt; 5u - 10; // 5u代表这个5是无符号整数
+</code></pre><p>你可能会以为<code>5u - 10</code>会得出<code>-5</code>，因为<code>5 - 10 = -5</code>，但是实际上是：</p>
+<pre><code>4294967291
+</code></pre><p>因为<code>unsigned int</code>的优先级比<code>int</code>的优先级要高，所以导致<code>int</code>转化成了<code>unsigned int</code>类型。结果就溢出了，我们就得到了我们意想不到的结果：</p>
+<p>这是其中一个我们要避免使用无符号整数的原因之一。</p>
+<p><em>注意: Microsoft’s Visual C++ 2005 对无符号整数和整数之间的转化不会抛出警告</em></p>
 
 </div>
 <hr>
